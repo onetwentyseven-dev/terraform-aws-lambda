@@ -14,7 +14,7 @@ resource "aws_lambda_function" "function" {
   runtime       = var.function_runtime
   role          = aws_iam_role.lambda.arn
   handler       = var.function_name
-  timeout       = 30
+  timeout       = var.function_timeout
   memory_size   = var.function_memory
   architectures = ["x86_64"]
   publish       = var.enable_versions

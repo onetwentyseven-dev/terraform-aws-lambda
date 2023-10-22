@@ -60,3 +60,9 @@ variable "enable_versions" {
   default     = false
   description = "Publish Lambda Versions for use with AWS Cloudfront Lambda@Edge"
 }
+
+variable "function_timeout" {
+  type        = number
+  default     = 30
+  description = "value in seconds at which the lambda times out"
+}
