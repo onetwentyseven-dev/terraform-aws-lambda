@@ -52,16 +52,5 @@ variable "additional_role_policies" {
 variable "environment_variables" {
   type        = map(string)
   description = "list of environment variables to inject into the lambda"
-}
-
-variable "routes" {
-  type = list(string)
-}
-
-variable "apigw_id" {
-  type = string
-}
-
-variable "api_execution_arn" {
-  type = string
+  default     = {}
 }
