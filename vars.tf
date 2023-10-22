@@ -57,6 +57,6 @@ variable "environment_variables" {
 
 variable "enable_versions" {
   type        = bool
-  default     = true
+  default     = false
   description = "Publish Lambda Versions for use with AWS Cloudfront Lambda@Edge"
 }
