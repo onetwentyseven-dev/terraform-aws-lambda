@@ -17,6 +17,7 @@ resource "aws_lambda_function" "function" {
   timeout       = 30
   memory_size   = var.function_memory
   architectures = ["x86_64"]
+  publish       = var.enable_versions
 
   dynamic "vpc_config" {
     for_each = length(var.vpc_subnet_ids) > 0 || length(var.vpc_security_group_ids) > 0 ? [1] : []

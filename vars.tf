@@ -54,3 +54,9 @@ variable "environment_variables" {
   description = "list of environment variables to inject into the lambda"
   default     = {}
 }
+
+variable "enable_versions" {
+  type        = bool
+  default     = true
+  description = "Publish Lambda Versions for use with AWS Cloudfront Lambda@Edge"
+}
