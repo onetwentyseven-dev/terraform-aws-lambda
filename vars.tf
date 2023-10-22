@@ -76,3 +76,8 @@ variable "function_package_location" {
     error_message = "function_package_location must end in .zip"
   }
 }
+
+variable "function_handler" {
+  default = ""
+  type    = string
+}

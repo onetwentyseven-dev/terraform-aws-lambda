@@ -13,7 +13,7 @@ resource "aws_lambda_function" "function" {
   filename      = var.function_package_location != "" ? var.function_package_location : "${path.module}/assets/lambda_base.zip"
   runtime       = var.function_runtime
   role          = aws_iam_role.lambda.arn
-  handler       = var.function_name
+  handler       = var.function_handler != "" ? var.function_handler : var.function_name
   timeout       = var.function_timeout
   memory_size   = var.function_memory
   architectures = ["x86_64"]
