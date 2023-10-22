@@ -10,7 +10,7 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_lambda_function" "function" {
   function_name = var.function_name
-  filename      = "${path.module}/assets/lambda_base.zip"
+  filename      = "${path.module}${var.function_package_location != "" ? var.function_package_location : "/assets/lambda_base.zip"}"
   runtime       = var.function_runtime
   role          = aws_iam_role.lambda.arn
   handler       = var.function_name

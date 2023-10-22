@@ -66,3 +66,13 @@ variable "function_timeout" {
   default     = 30
   description = "value in seconds at which the lambda times out"
 }
+
+variable "function_package_location" {
+  default     = ""
+  type        = string
+  description = "location relative to the terraform project that this lambda's function code is located at. File path should end in .zip"
+  validation {
+    condition     = var.function_package_location == "" ? true : can(regex(".*\\.zip$", var.function_package_location))
+    error_message = "function_package_location must end in .zip"
+  }
+}
