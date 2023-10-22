@@ -2,7 +2,7 @@ locals {
   lambda_basic_policy = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
   lambda_vpc_policy   = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
   lambda_policy       = var.vpc_id != "" ? local.lambda_vpc_policy : local.lambda_basic_policy
-  parameter_store_arn = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter${var.paramstore_prefix}/*"
+  parameter_store_arn = var.paramstore_prefix != null ? "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter${var.paramstore_prefix}/*" : null
 }
 
 data "aws_region" "current" {}
@@ -64,12 +64,14 @@ resource "aws_iam_role_policy_attachment" "lambda" {
 }
 
 resource "aws_iam_role_policy" "lambda_paramstore" {
+  count  = local.parameter_store_arn != null ? 1 : 0
   name   = "paramstore-access"
   role   = aws_iam_role.lambda.name
-  policy = data.aws_iam_policy_document.lambda_paramstore.json
+  policy = data.aws_iam_policy_document.lambda_paramstore[0].json
 }
 
 data "aws_iam_policy_document" "lambda_paramstore" {
+  count = local.parameter_store_arn != null ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -136,3 +138,37 @@ resource "aws_security_group_rule" "egress" {
   ]
 }
 
+resource "aws_lambda_permission" "allow_apigateway" {
+  for_each      = var.api_execution_arn != "" ? toset(var.routes) : []
+  statement_id  = sha1(each.value)
+  function_name = var.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${var.api_execution_arn}/*/${replace(each.value, " ", "")}"
+  action        = "lambda:InvokeFunction"
+}
+
+resource "aws_apigatewayv2_route" "lambda" {
+  for_each = var.apigw_id == "" ? [] : toset(var.routes)
+
+  api_id    = var.apigw_id
+  route_key = each.value
+
+  target = "integrations/${aws_apigatewayv2_integration.lambda[0].id}"
+
+  depends_on = [
+    aws_apigatewayv2_integration.lambda,
+  ]
+}
+
+resource "aws_apigatewayv2_integration" "lambda" {
+  count       = var.apigw_id == "" ? 0 : 1
+  api_id      = var.apigw_id
+  description = "Integration for ${var.function_name}"
+
+  integration_type   = "AWS_PROXY"
+  integration_uri    = aws_lambda_function.function.invoke_arn
+  integration_method = "POST"
+
+  passthrough_behavior = "WHEN_NO_MATCH"
+
+}
